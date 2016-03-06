@@ -17,6 +17,7 @@ SOURCES += main.cpp\
     field.cpp
 
 HEADERS  += gamewindow.h \
-    field.h
+    field.h \
+    cell.h
 
 FORMS    += gamewindow.ui
