@@ -13,11 +13,14 @@ public:
     explicit field(QWidget *parent = 0);
 private:
     void drawPieces();
-    void drawCells();
+    void drawField();
     void drawMen();
     void drawKing();
+    void showPossibleMoves(int x, int y);
     cell gameField[4][8];
     int currentActive[2];
+    int possibleMove[4][2];
+    int possibleMoves;
 signals:
 
 public slots:
