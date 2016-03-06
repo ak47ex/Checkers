@@ -5,6 +5,7 @@
 #include <QOpenGLWidget>
 #include <GL/glu.h>
 #include <cell.h>
+#include <QMouseEvent>
 class field : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
@@ -16,14 +17,18 @@ private:
     void drawMen();
     void drawKing();
     cell gameField[4][8];
+    int currentActive[2];
 signals:
 
 public slots:
     void updateField(cell gameField[4][8]);
 protected:
-    void initializeGL() Q_DECL_OVERRIDE;
-    void resizeGL(int nWidth, int nHeight) Q_DECL_OVERRIDE;
-    void paintGL() Q_DECL_OVERRIDE;
+    void initializeGL();
+    void resizeGL(int nWidth, int nHeight);
+    void paintGL();
+    void mousePressEvent(QMouseEvent *event);
+    //void mouseReleaseEvent(QMouseEvent * event);
+    //void mouseMoveEvent(QMouseEvent * event);
 };
 
 #endif // FIELD_H
