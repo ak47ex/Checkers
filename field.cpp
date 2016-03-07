@@ -7,6 +7,7 @@ field::field(QWidget *parent) : QOpenGLWidget(parent)
     for(int i=0; i<4; i++)
         possibleMove[i][0]=possibleMove[i][1]=-1;
     possibleMoves=0;
+    underFight[0]=underFight[1]=-1;
 }
 
 void field::initializeGL(){
@@ -38,59 +39,105 @@ void field::updateField(cell gameField[4][8]){
 void field::mousePressEvent(QMouseEvent *event){
     if(currentActive[0]<8){
         gameField[currentActive[0]][currentActive[1]].active=0;
-        for(int i=0; i<possibleMoves; i++)
-            gameField[possibleMove[i][0]][possibleMove[i][1]].active=0;
-        possibleMoves=0;
     }
     double x = ((double)event->x()/this->width())*8;
     double y = ((double)(this->height()-event->y())/this->height())*8;
     int xx=(int)floor(x);
     int yy=(int)floor(y);
     if(yy%2==0){
-        if(xx%2==0 && gameField[xx/2][yy].side==0){
-            currentActive[0]=xx/2;
-            currentActive[1]=yy;
-            gameField[xx/2][yy].active=2;
-            showPossibleMoves(xx/2,yy);
+        if(xx%2==0){
+            if(gameField[xx/2][yy].side==2){
+                gameField[currentActive[0]][currentActive[1]].active=0;
+                currentActive[0]=xx/2;
+                currentActive[1]=yy;
+                hidePossibleMoves();
+                gameField[xx/2][yy].active=2;
+                showPossibleMoves(xx/2,yy);
+            }
+            if(gameField[xx/2][yy].active==1){
+                gameField[xx/2][yy]=cell(gameField[currentActive[0]][currentActive[1]].isKing,2);
+                gameField[currentActive[0]][currentActive[1]]=cell();
+                if(underFight[0]>-1 && underFight[1]>-1){
+                    gameField[underFight[0]][underFight[1]]=cell();
+                    underFight[0]=underFight[1]=-1;
+                }
+                currentActive[0]=currentActive[1]=10;
+                //сигнал о завершении хода
+                hidePossibleMoves();
+            }
         }
+        else
+            hidePossibleMoves();
     }
-    else
-        if((xx+1)%2==0 && gameField[xx/2][yy].side==0){
-            currentActive[0]=xx/2;
-            currentActive[1]=yy;
-            gameField[xx/2][yy].active=2;
-            showPossibleMoves(xx/2,yy);
+    else{
+        if((xx+1)%2==0){
+            if(gameField[xx/2][yy].side==2){
+                gameField[currentActive[0]][currentActive[1]].active=0;
+                currentActive[0]=xx/2;
+                currentActive[1]=yy;
+                hidePossibleMoves();
+                gameField[xx/2][yy].active=2;
+                showPossibleMoves(xx/2,yy);
+            }
+            if(gameField[xx/2][yy].active==1){
+                gameField[xx/2][yy]=cell(gameField[currentActive[0]][currentActive[1]].isKing,2);
+                gameField[currentActive[0]][currentActive[1]]=cell();
+                currentActive[0]=currentActive[1]=10;
+                //сигнал о завершении хода
+                hidePossibleMoves();
+            }
         }
+        else
+            hidePossibleMoves();
+    }
     update();
 }
+
+void field::hidePossibleMoves(){
+    for(int i=0; i<4; i++)
+        for(int j=0; j<8; j++){
+            gameField[i][j].active=0;
+        }
+}
+
 void field::showPossibleMoves(int x, int y){
     if(x>3 || y>7)//если вышли за пределы доски, выходим из функции
         return;
     if(y%2==0){ //если начинаем с чётной строки
-            if(gameField[x][y+1].side==2){
-                gameField[x][y+1].active=(char)1;
-                possibleMove[possibleMoves][0]=x;
-                possibleMove[possibleMoves++][1]=(y+1);
+        if(x>0){
+            if(gameField[x-1][y+1].side==0){    //если налево по диагонали пустая клетка
+                gameField[x-1][y+1].active=1;
+            }else if(gameField[x-1][y+1].side==1){  //если налево по диагонали стоит чужая шашка
+                //if(gameField[x-1][y+2].side!=0)
+
+                gameField[x-1][y+2].active=1;
+                //showPossibleAttack(x+1,y+2);
+                underFight[0]=x-1;
+                underFight[1]=y+1;
             }
-            if(gameField[x-1][y+1].side==2 && x>0){
-                gameField[x-1][y+1].active=(char)1;
-                possibleMove[possibleMoves][0]=(x-1);
-                possibleMove[possibleMoves++][1]=(y+1);
-            }
+        }
+        if(gameField[x][y+1].side==0){
+            gameField[x][y+1].active=1;
+        }else if(gameField[x][y+1].side==1){
+            gameField[x+1][y+2].active=1;
+            //showPossibleAttack(x+1,y+2);
+            underFight[0]=x;
+            underFight[1]=y+1;
+        }
+
     }
     else{
-        if(gameField[x][y+1].side==2){
-            gameField[x][y+1].active=(char)1;
-            possibleMove[possibleMoves][0]=x;
-            possibleMove[possibleMoves++][1]=(y+1);
+        if(gameField[x][y+1].side==0){
+            gameField[x][y+1].active=1;
         }
-        if(gameField[x+1][y+1].side==2 && x<3){
-            gameField[x+1][y+1].active=(char)1;
-            possibleMove[possibleMoves][0]=(x+1);
-            possibleMove[possibleMoves++][1]=(y+1);
+        if(gameField[x+1][y+1].side==0 && x<3){
+            gameField[x+1][y+1].active=1;
         }
     }
 //    update();
+}
+void field::showPossibleAttack(int x, int y){
+//заготовка для поиска многоходовки
 }
 
 void field::drawPieces(){
@@ -123,7 +170,7 @@ void field::drawPieces(){
             glTranslatef(i*2+j%2,j,0);
 
             switch(gameField[i][j].side){
-            case (char)0:
+            case (char)2:
                 glColor3ub(200,10,20);  //красные
                 (gameField[i][j].isKing)?drawKing():drawMen();      //проверяем: дамка или нет?
                 break;

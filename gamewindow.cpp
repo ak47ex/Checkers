@@ -9,12 +9,16 @@ GameWindow::GameWindow(QWidget *parent) :
     for(int i=0; i<4; i++)
         for(int j=0; j<8; j++){
             if(j<3)
-                gameField[i][j]=cell(0,0);
-            else if(j>4)
-                gameField[i][j]=cell(0,1);
-            else
                 gameField[i][j]=cell(0,2);
+//            else if(j>4)
+//                gameField[i][j]=cell(0,1);
+            else
+                gameField[i][j]=cell(0,0);
         }
+    gameField[0][3]=cell(0,1);
+    gameField[1][3]=cell(0,1);
+    gameField[2][3]=cell(0,1);
+    gameField[1][4]=cell(0,1);
     ui->openGLWidget->updateField(gameField);
 }
 

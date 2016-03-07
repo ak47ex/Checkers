@@ -17,8 +17,11 @@ private:
     void drawMen();
     void drawKing();
     void showPossibleMoves(int x, int y);
+    void hidePossibleMoves();
+    void showPossibleAttack(int x, int y);
     cell gameField[4][8];
     int currentActive[2];
+    int underFight[2]; //переменная, в которой хранится шашка для удалении, при бое
     int possibleMove[4][2];
     int possibleMoves;
 signals:
