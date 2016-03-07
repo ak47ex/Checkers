@@ -7,7 +7,6 @@ field::field(QWidget *parent) : QOpenGLWidget(parent)
     for(int i=0; i<4; i++)
         possibleMove[i][0]=possibleMove[i][1]=-1;
     possibleMoves=0;
-    underFight[0]=underFight[1]=-1;
 }
 
 void field::initializeGL(){
@@ -52,19 +51,24 @@ void field::mousePressEvent(QMouseEvent *event){
                 currentActive[1]=yy;
                 hidePossibleMoves();
                 gameField[xx/2][yy].active=2;
-                showPossibleMoves(xx/2,yy);
+                showPossibleMoves(xx/2,yy,1);
+                showPossibleMoves(xx/2,yy,2);
+                showPossibleMoves(xx/2,yy,3);
+                showPossibleMoves(xx/2,yy,4);
             }
             if(gameField[xx/2][yy].active==1){
                 gameField[xx/2][yy]=cell(gameField[currentActive[0]][currentActive[1]].isKing,2);
                 gameField[currentActive[0]][currentActive[1]]=cell();
-                if(underFight[0]>-1 && underFight[1]>-1){
-                    gameField[underFight[0]][underFight[1]]=cell();
-                    underFight[0]=underFight[1]=-1;
-                }
+                for(int i=0; i<4; i++)
+                    for(int j=0; j<8; j++)
+                        if(gameField[i][j].active==3)
+                            gameField[i][j]=cell();
                 currentActive[0]=currentActive[1]=10;
                 //сигнал о завершении хода
                 hidePossibleMoves();
             }
+            if(gameField[xx/2][yy].side==0)
+                hidePossibleMoves();
         }
         else
             hidePossibleMoves();
@@ -77,15 +81,24 @@ void field::mousePressEvent(QMouseEvent *event){
                 currentActive[1]=yy;
                 hidePossibleMoves();
                 gameField[xx/2][yy].active=2;
-                showPossibleMoves(xx/2,yy);
+                showPossibleMoves(xx/2,yy,1);
+                showPossibleMoves(xx/2,yy,2);
+                showPossibleMoves(xx/2,yy,3);
+                showPossibleMoves(xx/2,yy,4);
             }
             if(gameField[xx/2][yy].active==1){
                 gameField[xx/2][yy]=cell(gameField[currentActive[0]][currentActive[1]].isKing,2);
                 gameField[currentActive[0]][currentActive[1]]=cell();
+                for(int i=0; i<4; i++)
+                    for(int j=0; j<8; j++)
+                        if(gameField[i][j].active==3)
+                            gameField[i][j]=cell();
                 currentActive[0]=currentActive[1]=10;
                 //сигнал о завершении хода
                 hidePossibleMoves();
             }
+            if(gameField[xx/2][yy].side==0)
+                hidePossibleMoves();
         }
         else
             hidePossibleMoves();
@@ -100,39 +113,155 @@ void field::hidePossibleMoves(){
         }
 }
 
-void field::showPossibleMoves(int x, int y){
-    if(x>3 || y>7)//если вышли за пределы доски, выходим из функции
+void field::showPossibleMoves(int x, int y, int orient){
+    if(x>3 || y>7 || x<0 || y<0)//если вышли за пределы доски, выходим из функции
         return;
-    if(y%2==0){ //если начинаем с чётной строки
+    if(y%2==0){
         if(x>0){
-            if(gameField[x-1][y+1].side==0){    //если налево по диагонали пустая клетка
-                gameField[x-1][y+1].active=1;
-            }else if(gameField[x-1][y+1].side==1){  //если налево по диагонали стоит чужая шашка
-                //if(gameField[x-1][y+2].side!=0)
-
-                gameField[x-1][y+2].active=1;
-                //showPossibleAttack(x+1,y+2);
-                underFight[0]=x-1;
-                underFight[1]=y+1;
+            if(orient == 1 && y<7){
+                if(gameField[x-1][y+1].side==0){
+                        gameField[x-1][y+1].active=1;
+                }
+                if(gameField[x-1][y+1].side==1){
+                    if(y < 6 && gameField[x-1][y+2].side==0){
+                        gameField[x-1][y+1].active=3;
+                        showPossibleMoves(x-1,y+1,1);
+                    }
+                }
+            }
+            if(orient == 2 && y<7){
+                if(gameField[x][y+1].side==0){
+                    gameField[x][y+1].active=1;
+                }
+                if(gameField[x][y+1].side==1){
+                    if(x < 3 && y<6 && gameField[x+1][y+2].side==0){
+                        gameField[x][y+1].active=3;
+                        showPossibleMoves(x,y+1,2);
+                    }
+                }
+            }
+            if(orient == 3){
+                if(y>0 && gameField[x][y-1].side==0 && (gameField[x][y].isKing == true || gameField[x][y].side==1)){
+                    gameField[x][y-1].active=1;
+                }
+                if(gameField[x][y-1].side==1){
+                    if(x<3 && y>1 && gameField[x+1][y-2].side==0){
+                        gameField[x][y-1].active=3;
+                        showPossibleMoves(x,y-1,3);
+                    }
+                }
+            }
+            if(orient == 4){
+                if(y>0 && gameField[x-1][y-1].side==0 && (gameField[x][y].isKing == true || gameField[x][y].side==1)){
+                    gameField[x-1][y-1].active=1;
+                }
+                if(gameField[x-1][y-1].side==1){
+                    if(x>1 && y>1 && gameField[x-1][y-2].side==0){
+                        gameField[x-1][y-1].active=3;
+                        showPossibleMoves(x-1,y-1,4);
+                    }
+                }
+            }
+        }else{
+            if(orient == 2){
+                if(y<7 && gameField[x][y+1].side==0){
+                        gameField[x][y+1].active=1;
+                }
+                if(gameField[x][y+1].side==1){
+                    if(y<6 && x<3 && gameField[x+1][y+2].side==0){
+                        gameField[x][y+1].active=3;
+                        showPossibleMoves(x,y+1,2);
+                    }
+                }
+            }
+            if(orient == 3){
+                if(y>1){
+                    if(gameField[x][y-1].side==0  && gameField[x][y].isKing == true){
+                        gameField[x][y-1].active=1;
+                    }
+                    if(gameField[x][y-1].side==1){
+                        if(y>1 && x<3 && gameField[x+1][y-2].side==0){
+                            gameField[x][y-1].active=3;
+                            showPossibleMoves(x,y-1,3);
+                        }
+                    }
+                }
             }
         }
-        if(gameField[x][y+1].side==0){
-            gameField[x][y+1].active=1;
-        }else if(gameField[x][y+1].side==1){
-            gameField[x+1][y+2].active=1;
-            //showPossibleAttack(x+1,y+2);
-            underFight[0]=x;
-            underFight[1]=y+1;
+
+    }else{
+        if(x<3){
+            if(orient == 1 && y<7){
+                if(gameField[x][y+1].side==0){
+                    gameField[x][y+1].active=1;
+                }
+                if(gameField[x][y+1].side==1){
+                    if(x>0 && y<6 && gameField[x-1][y+2].side==0){\
+                        gameField[x][y+1].active=3;
+                        showPossibleMoves(x,y+1,1);
+                    }
+                }
+            }
+            if(orient == 2 && y<7){
+                if(gameField[x+1][y+1].side==0){
+                    gameField[x+1][y+1].active=1;
+                }
+                if(gameField[x+1][y+1].side==1){
+                    if(y<6 && gameField[x+1][y+2].side==0){
+                        gameField[x+1][y+1].active=3;
+                        showPossibleMoves(x+1,y+1,2);
+                    }
+                }
+            }
+            if(orient == 3){
+                if(gameField[x+1][y-1].side==0 && (gameField[x][y].isKing == true || gameField[x][y].side==1)){
+                    gameField[x+1][y-1].active=1;
+                }
+                if(gameField[x+1][y-1].side==1){
+                    if(y > 1 && gameField[x+1][y-2].side==0){
+                        gameField[x+1][y-1].active=3;
+                        showPossibleMoves(x+1,y-1,3);
+                    }
+                }
+            }
+            if(orient == 4){
+                if(gameField[x][y-1].side==0 && (gameField[x][y].isKing == true || gameField[x][y].side==1)){
+                    gameField[x][y-1].active=1;
+                }
+                if(gameField[x][y-1].side==1){
+                    if(y > 1 && x>0 && gameField[x-1][y-2].side==0){
+                        gameField[x][y-1].active=3;
+                        showPossibleMoves(x,y-1,4);
+                    }
+                }
+            }
+        }else{
+            if(orient == 1 && y<7){
+                if(gameField[x][y+1].side==0){
+                    gameField[x][y+1].active=1;
+                }
+                if(gameField[x][y+1].side==1){
+                    if(y<6 && gameField[x-1][y+2].side==0){
+                        gameField[x][y+1].active=3;
+                        showPossibleMoves(x,y+1,1);
+                    }
+                }
+            }
+            if(orient == 4){
+                if(y>0){
+                    if(gameField[x][y-1].side==0 && (gameField[x][y].isKing == true || gameField[x][y].side==1)){
+                        gameField[x][y-1].active=1;
+                    }
+                    if(gameField[x][y-1].side==1){
+                        if(y>1 && gameField[x-1][y-2].side==0){
+                            gameField[x][y-1].active=3;
+                            showPossibleMoves(x,y-1,4);
+                        }
+                    }
+                }
+            }
         }
 
-    }
-    else{
-        if(gameField[x][y+1].side==0){
-            gameField[x][y+1].active=1;
-        }
-        if(gameField[x+1][y+1].side==0 && x<3){
-            gameField[x+1][y+1].active=1;
-        }
     }
 //    update();
 }
@@ -157,6 +286,15 @@ void field::drawPieces(){
                 break;
             case (char)2:
                 glColor3ub(125,200,255);
+                glBegin(GL_QUADS);
+                    glVertex2d(0,0);
+                    glVertex2d(0,1);
+                    glVertex2d(1,1);
+                    glVertex2d(1,0);
+                glEnd();
+                break;
+            case (char)3:
+                glColor3ub(255,200,150);
                 glBegin(GL_QUADS);
                     glVertex2d(0,0);
                     glVertex2d(0,1);

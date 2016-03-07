@@ -19,6 +19,7 @@ GameWindow::GameWindow(QWidget *parent) :
     gameField[1][3]=cell(0,1);
     gameField[2][3]=cell(0,1);
     gameField[1][4]=cell(0,1);
+    gameField[2][5]=cell(0,1);
     ui->openGLWidget->updateField(gameField);
 }
 
