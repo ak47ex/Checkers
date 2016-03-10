@@ -4,7 +4,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLWidget>
 #include <GL/glu.h>
-#include <cell.h>
+#include <piece.h>
 #include <QMouseEvent>
 class field : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -14,26 +14,23 @@ public:
 private:
     void drawPieces();
     void drawField();
-    void drawMen();
-    void drawKing();
-    void showPossibleMoves(int x, int y, int orient);
-    void hidePossibleMoves();
-    void showPossibleAttack(int x, int y);
-    cell gameField[4][8];
-    int currentActive[2];
-    int possibleMove[4][2];
-    int possibleMoves;
+    void drawPiece(bool, int);
+    void replacePieceByCoords(int x, int y, piece replace);
+    piece readPieceByCoords(int x, int y);
+    piece pieces[2][12];
+    int iter;
+    piece temp;
 signals:
 
 public slots:
-    void updateField(cell gameField[4][8]);
+    void updateField(piece array[2][12]);
 protected:
     void initializeGL();
     void resizeGL(int nWidth, int nHeight);
     void paintGL();
     void mousePressEvent(QMouseEvent *event);
-    //void mouseReleaseEvent(QMouseEvent * event);
-    //void mouseMoveEvent(QMouseEvent * event);
+    void mouseReleaseEvent(QMouseEvent * event);
+    void mouseMoveEvent(QMouseEvent * event);
 };
 
 #endif // FIELD_H

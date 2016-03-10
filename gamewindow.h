@@ -2,7 +2,7 @@
 #define GAMEWINDOW_H
 
 #include <QMainWindow>
-#include <cell.h>
+#include <piece.h>
 namespace Ui {
 class GameWindow;
 }
@@ -17,7 +17,6 @@ public:
 
 private:
     Ui::GameWindow *ui;
-    cell gameField[4][8];
 };
 
 #endif // GAMEWINDOW_H

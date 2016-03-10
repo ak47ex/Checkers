@@ -18,6 +18,6 @@ SOURCES += main.cpp\
 
 HEADERS  += gamewindow.h \
     field.h \
-    cell.h
+    piece.h
 
 FORMS    += gamewindow.ui
