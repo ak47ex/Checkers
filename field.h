@@ -15,11 +15,14 @@ private:
     void drawPieces();
     void drawField();
     void drawPiece(bool, int);
-    void replacePieceByCoords(int x, int y, piece replace);
+    void replacePieceByCoords(int x, int y, piece replace, int&);
+    void removePieceByCoords(int x, int y);
     piece readPieceByCoords(int x, int y);
+    int currentPieceByCoords(int,int);
     piece pieces[2][12];
     int iter;
-    piece temp;
+    int xmov,ymov;
+    int checkCell(int,int);
 signals:
 
 public slots:
@@ -29,8 +32,8 @@ protected:
     void resizeGL(int nWidth, int nHeight);
     void paintGL();
     void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent * event);
     void mouseMoveEvent(QMouseEvent * event);
+    void mouseReleaseEvent(QMouseEvent *event);
 };
 
 #endif // FIELD_H
